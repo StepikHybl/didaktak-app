@@ -1,39 +1,65 @@
+import './style.css';
 import confetti from 'https://unpkg.com/canvas-confetti?module';
 
-// --- IMPORTY Z NOVÉ DECENTRÁLNÍ SLOŽKY data_cj ---
-import { quizDataCJPravopis } from './data_cj/data_cj_pravopis.js';
-import { quizDataCJLexikologie } from './data_cj/data_cj_lexikologie.js';
-import { quizDataCJSyntax } from './data_cj/data_cj_syntax.js';
-import { quizDataCJPorozumeni } from './data_cj/data_cj_porozumeni.js';
-import { quizDataCJStylistika } from './data_cj/data_cj_stylistika.js';
-import { quizDataCJLiteratura } from './data_cj/data_cj_literatura.js';
+// Lazy-loaded quiz data container. Modules are imported on demand to keep
+// the initial bundle small (important for Pages / mobile load times).
+let quizData = [];
+const loadedSubjects = new Set();
 
-// Import anglického jazyka
-import { quizDataEN } from './data_en.js';
-
-// Sloučení všech dílčích modulů do globální databáze otázek
-const quizData = [
-    ...quizDataCJPravopis,
-    ...quizDataCJLexikologie,
-    ...quizDataCJSyntax,
-    ...quizDataCJPorozumeni,
-    ...quizDataCJStylistika,
-    ...quizDataCJLiteratura,
-    ...quizDataEN
-];
+async function ensureDataLoadedForSubject(subject) {
+    if (subject.includes('Český') && !loadedSubjects.has('cz')) {
+        const [pravopis, lexikologie, syntax, porozumeni, stylistika, literatura] = await Promise.all([
+            import('./data_cj/data_cj_pravopis.js'),
+            import('./data_cj/data_cj_lexikologie.js'),
+            import('./data_cj/data_cj_syntax.js'),
+            import('./data_cj/data_cj_porozumeni.js'),
+            import('./data_cj/data_cj_stylistika.js'),
+            import('./data_cj/data_cj_literatura.js')
+        ]);
+        quizData = [
+            ...quizData,
+            ...pravopis.quizDataCJPravopis,
+            ...lexikologie.quizDataCJLexikologie,
+            ...syntax.quizDataCJSyntax,
+            ...porozumeni.quizDataCJPorozumeni,
+            ...stylistika.quizDataCJStylistika,
+            ...literatura.quizDataCJLiteratura
+        ];
+        loadedSubjects.add('cz');
+    }
+    if (subject.includes('Anglický') && !loadedSubjects.has('en')) {
+        const en = await import('./data_en.js');
+        quizData = [ ...quizData, ...en.quizDataEN ];
+        loadedSubjects.add('en');
+    }
+}
 
 // --- STATE MANAGEMENT S PENĚŽENKOU A ZÁCHRANNOU SÍTÍ ---
-let savedState = JSON.parse(localStorage.getItem('eco_academy_state')) || {};
+localStorage.removeItem('eco_academy_state');
+let savedState = {};
+try {
+    savedState = JSON.parse(localStorage.getItem('eco_academy_state')) || {};
+} catch (e) {
+    savedState = {};
+}
 
 let state = {
-    xp: savedState.xp || 0,
-    streak: savedState.streak || 0,
-    lastLogin: savedState.lastLogin || Date.now(),
+    xp: 0,
+    streak: 0,
+    lastLogin: Date.now(),
     unlocked: savedState.unlocked || { 'Český jazyk': ['Pravopis'], 'Anglický jazyk': ['Grammar'] },
-    history: savedState.history || {},
-    coins: savedState.coins || 0,
-    tulipGrowthStage: savedState.tulipGrowthStage || 0
+    history: {},
+    coins: 0,
+    tulipGrowthStage: 0
 };
+
+function saveState() {
+    try {
+        localStorage.setItem('eco_academy_state', JSON.stringify(state));
+    } catch (e) {
+        console.warn('Cannot persist state:', e);
+    }
+}
 
 const subjectModules = {
     'Český jazyk': ['Pravopis', 'Lexikologie', 'Syntax', 'Porozumění textu', 'Stylistika', 'Literatura'],
@@ -68,6 +94,20 @@ if (toggleBtn) toggleBtn.onclick = function() {
     playTone(500, 'sine', 0.1);
 };
 
+// Theme toggle (light / pastel 'holcici' theme)
+const themeToggle = document.getElementById('theme-toggle');
+function applySavedTheme() {
+    const saved = localStorage.getItem('eco_theme') || 'dark';
+    if (saved === 'light') document.body.classList.add('light-theme');
+    if (themeToggle) themeToggle.innerHTML = saved === 'light' ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
+}
+applySavedTheme();
+if (themeToggle) themeToggle.onclick = function() {
+    const isLight = document.body.classList.toggle('light-theme');
+    localStorage.setItem('eco_theme', isLight ? 'light' : 'dark');
+    this.innerHTML = isLight ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
+};
+
 // --- EFEKT POZADÍ (POUZE PRO DESKTOPY) ---
 const blobs = document.querySelectorAll('.bg-blob');
 document.addEventListener('mousemove', (e) => {
@@ -78,6 +118,27 @@ document.addEventListener('mousemove', (e) => {
         blob.style.transform = `translate(${x}px, ${y}px)`;
     });
 });
+
+// --- VÝRAZNĚJŠÍ OSLAVA PRO PERFEKTNÍ SKÓRE ---
+function perfectScoreCelebration() {
+    const count = 200;
+    const defaults = {
+        origin: { y: 0.7 },
+        colors: ['#ff6596', '#b53cd4', '#3ee679', '#ff7da1', '#f472b6']
+    };
+
+    function fire(particleRatio, opts) {
+        confetti(Object.assign({}, defaults, opts, {
+            particleCount: Math.floor(count * particleRatio)
+        }));
+    }
+
+    fire(0.25, { spread: 26, startVelocity: 55 });
+    fire(0.2, { spread: 60 });
+    fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
+    fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
+    fire(0.1, { spread: 120, startVelocity: 45 });
+}
 
 // --- UKAZATEL RŮSTU TULIPÁNU & FUNKCE OBCHODU ---
 const tulipStages = [
@@ -92,9 +153,14 @@ function updateTulipVisualization() {
     const stage = state.tulipGrowthStage;
     for(let i = 0; i <= 4; i++) {
         const part = document.getElementById(tulipStages[i].id);
-        if(part) {
-            part.style.opacity = (i <= stage) ? '1' : '0';
-            part.style.transform = (i <= stage) ? 'scale(1)' : 'scale(0.8)';
+        if(!part) continue;
+        const visible = i <= stage;
+        // stagger appearance using CSS variable --delay
+        part.style.setProperty('--delay', `${i * 110}ms`);
+        if (visible) {
+            part.classList.add('visible');
+        } else {
+            part.classList.remove('visible');
         }
     }
 
@@ -105,8 +171,6 @@ function updateTulipVisualization() {
         if(btnBuy) {
             btnBuy.innerHTML = "Tulipán je hotový! 🌸";
             btnBuy.disabled = true;
-            btnBuy.style.background = "var(--border-light)";
-            btnBuy.style.color = "var(--text-dark)";
         }
         if(nextName) nextName.innerText = "Nádherná práce!";
     } else {
@@ -117,7 +181,44 @@ function updateTulipVisualization() {
         }
         if(nextName) nextName.innerText = nextStage.name;
     }
+
+    const btnReset = document.getElementById('btn-reset-tulip');
+    if (btnReset) {
+        btnReset.disabled = stage <= 0;
+    }
 }
+
+let toastTimeout;
+function showToast(message) {
+    const toast = document.getElementById('toast-message');
+    if (!toast) return;
+    toast.textContent = message;
+    toast.classList.add('toast-visible');
+    clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => toast.classList.remove('toast-visible'), 2600);
+}
+
+// Reset tulip: refund spent coins and reset visual stage (always full refund)
+const btnResetTulip = document.getElementById('btn-reset-tulip');
+if (btnResetTulip) {
+    btnResetTulip.onclick = () => {
+        if (state.tulipGrowthStage <= 0) return;
+        // Sum costs of stages already purchased (exclude stage 0)
+        const spent = tulipStages.slice(1, state.tulipGrowthStage + 1).reduce((s, p) => s + (p.cost || 0), 0);
+        const refund = spent;
+        state.coins = (state.coins || 0) + refund;
+        state.tulipGrowthStage = 0;
+        saveState();
+        // visual feedback
+        try { confetti({ particleCount: 30, spread: 60, colors: ['#ffd7e4', '#ff7da1'] }); } catch(e) {}
+        playTone(480, 'triangle', 0.12);
+        updateTulipVisualization();
+        updateHUD();
+        showToast(`Tulipán resetován. Zpět ${refund} lístků.`);
+    };
+}
+
+// --- INTERAKTIVNÍ DRAG & DROP NAVIGACE ---
 
 const btnBuyTulip = document.getElementById('btn-buy-tulip');
 if(btnBuyTulip) {
@@ -128,9 +229,11 @@ if(btnBuyTulip) {
         if(state.coins >= nextStage.cost) {
             state.coins -= nextStage.cost;
             state.tulipGrowthStage++;
-            localStorage.setItem('eco_academy_state', JSON.stringify(state));
+            saveState();
 
-            playTone(600, 'sine', 0.1); setTimeout(() => playTone(800, 'sine', 0.2), 100);
+            // small melodic cue for stage advance
+            playTone(600, 'sine', 0.08);
+            setTimeout(() => playStageSound(state.tulipGrowthStage), 80);
             confetti({ particleCount: 30, spread: 40, origin: { x: 0.8, y: 0.6 }, colors: ['#f472b6', '#a855f7'] });
 
             updateTulipVisualization();
@@ -140,6 +243,19 @@ if(btnBuyTulip) {
             alert("Nemáš dost lístků! Udělej si další kvíz.");
         }
     }
+}
+
+// Play a small audio cue for each growth stage
+function playStageSound(stage) {
+    // mapping: 1 - stem, 2 - leaves, 3 - bud, 4 - bloom
+    const map = {
+        1: { freq: 480, type: 'sine' },
+        2: { freq: 620, type: 'triangle' },
+        3: { freq: 780, type: 'sine' },
+        4: { freq: 980, type: 'sine' }
+    };
+    const s = map[stage];
+    if (s) playTone(s.freq, s.type, 0.15, 0.06);
 }
 
 // --- INTERAKTIVNÍ DRAG & DROP NAVIGACE ---
@@ -158,17 +274,21 @@ cassettes.forEach(c => {
 if (dropZone) {
     dropZone.ondragover = (e) => { e.preventDefault(); dropZone.classList.add('active'); };
     dropZone.ondragleave = () => dropZone.classList.remove('active');
-    dropZone.ondrop = (e) => {
+    dropZone.ondrop = async (e) => {
         e.preventDefault(); dropZone.classList.remove('active');
         const subject = e.dataTransfer.getData('text/plain');
-        if (subject) bootSubject(subject);
+        if (subject) await bootSubject(subject);
     };
 }
 
-function bootSubject(subject) {
+async function bootSubject(subject) {
     activeSubject = subject;
     playTone(600, 'sine', 0.2); setTimeout(() => playTone(800, 'sine', 0.2), 100);
     if (term) term.innerText = `[OK] ${subject} zasazen. Vyber sektor péče...`;
+
+    // Ensure required data modules are loaded for the chosen subject
+    await ensureDataLoadedForSubject(subject);
+
     setTimeout(() => { 
         const nameEl = document.getElementById('active-subject-name');
         if (nameEl) nameEl.innerText = subject; 
@@ -211,6 +331,11 @@ function renderTiers() {
         if (!isLocked) btn.onclick = () => { playTone(400, 'sine', 0.1); startQuiz(mod); };
         list.appendChild(btn);
     });
+}
+
+// Register a simple service worker for offline caching (optional)
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register(new URL('./sw.js', import.meta.url)).catch(() => {});
 }
 
 // --- ALGORITMUS KVÍZU (CHYTRÝ ALGORITMUS SE SPACED REPETITION) ---
@@ -327,14 +452,21 @@ function finishQuiz() {
     if (finalPercent >= 80) {
         document.getElementById('res-msg').innerText = "Úspěšná sklizeň!";
         document.getElementById('res-msg').style.color = "var(--eco-green)";
-        playTone(600, 'sine', 0.1); setTimeout(() => playTone(800, 'sine', 0.2), 100);
-        if (finalPercent === 100) confetti();
+        playTone(600, 'sine', 0.1); setTimeout(() => playTone(800, 'sine', 0.2), 100); // Základní zvuk úspěchu
+        
+        if (finalPercent === 100) {
+            setTimeout(() => playTone(1050, 'sine', 0.3), 250); // Třetí, vyšší tón pro 100%
+            perfectScoreCelebration(); // Větší konfety
+        }
         
         const mods = subjectModules[activeSubject];
         const cIdx = mods.indexOf(activeTier);
         if (cIdx < mods.length - 1 && !state.unlocked[activeSubject].includes(mods[cIdx + 1])) {
-            state.unlocked[activeSubject].push(mods[cIdx + 1]);
-            document.getElementById('res-subtext').innerText = `Odemčen nový modul: ${mods[cIdx + 1]}`;
+            const newModule = mods[cIdx + 1];
+            state.unlocked[activeSubject].push(newModule);
+            document.getElementById('res-subtext').innerText = `Odemčen nový modul: ${newModule}`;
+            playTone(700, 'triangle', 0.1); setTimeout(() => playTone(900, 'triangle', 0.15), 120);
+            showToast(`🔓 Odemčeno: ${newModule}`);
         } else document.getElementById('res-subtext').innerText = "Skvělá práce.";
     } else {
         document.getElementById('res-msg').innerText = "Chce to praxi";
@@ -359,17 +491,55 @@ if(btnFinish) btnFinish.onclick = () => {
 
 // --- FUNKCE PŘEPÍNÁNÍ OBRAZOVEK S AUTOMATICKÝM CENTROVÁNÍM LAYOUTU ---
 function showScreen(id) {
-    document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
-    const screen = document.getElementById(id);
-    if(screen) screen.style.display = 'block';
-
-    // Inteligentní skrývání zahrady: Viditelná pouze v menu, při testu uvolní místo a kvíz skočí na střed
+    const screens = document.querySelectorAll('.screen');
+    const activeScreen = Array.from(screens).find(s => s.style.display === 'block');
     const garden = document.getElementById('garden-aside');
+
+    if (activeScreen && activeScreen.id !== id) {
+        activeScreen.classList.remove('screen-fade-in');
+        activeScreen.classList.add('screen-fade-out');
+        
+        // Schovat zahradu s animací, pokud jdeme do kvízu nebo výsledků
+        const hideGarden = (id !== 'subject-screen' && id !== 'menu-screen');
+        if (hideGarden && garden && garden.style.display !== 'none') {
+            garden.classList.remove('screen-fade-in');
+            garden.classList.add('screen-fade-out');
+        }
+
+        setTimeout(() => {
+            activeScreen.classList.remove('screen-fade-out');
+            if (garden) garden.classList.remove('screen-fade-out');
+            switchScreenDisplay(id, screens, garden);
+        }, 200); // Čas na dokončení fade-out animace
+    } else {
+        switchScreenDisplay(id, screens, garden);
+    }
+}
+
+function switchScreenDisplay(id, screens, garden) {
+    screens.forEach(s => {
+        s.style.display = 'none';
+        s.classList.remove('screen-fade-in');
+    });
+    
+    const screen = document.getElementById(id);
+    if (screen) {
+        screen.style.display = 'block';
+        void screen.offsetWidth; // Vynucení reflow pro restart animace
+        screen.classList.add('screen-fade-in');
+    }
+
+    // Inteligentní skrývání zahrady
     if (garden) {
         if (id === 'subject-screen' || id === 'menu-screen') {
-            garden.style.display = 'flex';
+            if (garden.style.display === 'none' || garden.style.display === '') {
+                garden.style.display = 'flex';
+                void garden.offsetWidth;
+                garden.classList.add('screen-fade-in');
+            }
         } else {
             garden.style.display = 'none';
+            garden.classList.remove('screen-fade-in');
         }
     }
 }
@@ -415,7 +585,7 @@ function updateHUD() {
     const hudCoins = document.getElementById('hud-coins');
     if(hudCoins) hudCoins.innerText = state.coins;
     
-    localStorage.setItem('eco_academy_state', JSON.stringify(state));
+    saveState();
 }
 
 // --- INICIALIZACE A SPUŠTĚNÍ ---

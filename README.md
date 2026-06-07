@@ -1,5 +1,8 @@
 # 🌸 Sakura Study Garden
 
+![Build & Deploy](https://github.com/StepikHybl/didaktak-app/actions/workflows/deploy.yml/badge.svg)
+![Pages](https://github.com/StepikHybl/didaktak-app/actions/workflows/deploy.yml/badge.svg)
+
 Moderní webová aplikace pro přípravu na didaktické testy z českého a anglického jazyka. Projekt kombinuje chytrou gamifikaci, čistý Sakura Cyber-Cozy design a optimalizaci pro plynulé mobilní hraní.
 
 ---
