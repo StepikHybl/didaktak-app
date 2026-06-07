@@ -4,11 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eko Akademie | Pěstování</title>
+    <title>Sakura Study Garden</title>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script type="module" crossorigin src="/didaktak-app/assets/index-BXAGwfCL.js"></script>
-  <link rel="stylesheet" crossorigin href="/didaktak-app/assets/index-CbE6DHtC.css">
+  <script type="module" crossorigin src="/didaktak-app/assets/index-DJOHtWyl.js"></script>
+  <link rel="stylesheet" crossorigin href="/didaktak-app/assets/index-D4rgWX-0.css">
 </head>
 
 <body>
@@ -40,6 +40,7 @@
                         <i class="fas fa-leaf" style="color: var(--eco-green);"></i>
                         <span id="hud-coins" style="font-weight: 900; font-size: 1.2rem; margin-left: 5px;">0</span>
                     </div>
+                    <button id="theme-toggle" aria-label="Toggle theme"><i class="fas fa-sun"></i></button>
                     <button id="audio-toggle" class="active"><i class="fas fa-volume-up"></i></button>
                 </div>
             </header>
@@ -138,9 +139,12 @@
                 <p style="color: var(--text-muted); font-weight: 800; font-size: 0.95rem; margin-bottom: 20px;">
                     Cíl: <span id="next-upgrade-name" style="color: var(--eco-green-dark);">Stonek</span>
                 </p>
-                <button id="btn-buy-tulip" class="modern-btn btn-primary" style="width: 100%; font-size: 1.1rem;">
-                    Koupit (20 <i class="fas fa-leaf"></i>)
-                </button>
+                    <div style="display:flex; gap:12px; align-items:center;">
+                        <button id="btn-buy-tulip" class="modern-btn btn-primary" style="flex:1; font-size: 1.1rem;">
+                            Koupit (20 <i class="fas fa-leaf"></i>)
+                        </button>
+                        <button id="btn-reset-tulip" class="modern-btn btn-outline" style="flex:0 0 auto; padding:8px 12px; font-size:0.95rem;">Reset</button>
+                    </div>
             </div>
 
             <div class="eco-card tulip-display">
@@ -150,18 +154,18 @@
                             stroke="var(--border-light)" stroke-width="4" />
                         <rect x="35" y="180" width="130" height="24" rx="12" fill="var(--petal-pink)" />
                     </g>
-                    <g id="t-stem" class="t-part" style="opacity: 0;">
+                    <g id="t-stem" class="t-part">
                         <path d="M100,180 Q90,120 100,70" fill="none" stroke="var(--accent-mint)" stroke-width="10"
                             stroke-linecap="round" />
                     </g>
-                    <g id="t-leaves" class="t-part" style="opacity: 0;">
+                    <g id="t-leaves" class="t-part">
                         <path d="M98,160 Q40,140 30,90 Q70,110 98,140" fill="var(--accent-mint)" />
                         <path d="M102,150 Q160,130 170,80 Q130,100 102,130" fill="var(--accent-mint)" />
                     </g>
-                    <g id="t-bud" class="t-part" style="opacity: 0;">
+                    <g id="t-bud" class="t-part">
                         <path d="M100,90 Q80,60 100,40 Q120,60 100,90" fill="var(--eco-green-light)" />
                     </g>
-                    <g id="t-bloom" class="t-part" style="opacity: 0;">
+                    <g id="t-bloom" class="t-part">
                         <path d="M100,90 C40,90 40,10 100,30 C100,50 100,70 100,90 Z" fill="var(--eco-green-dark)" />
                         <path d="M100,90 C160,90 160,10 100,30 C100,50 100,70 100,90 Z" fill="var(--eco-green-dark)" />
                         <path d="M100,90 C60,50 80,0 100,10 C120,0 140,50 100,90 Z" fill="var(--eco-green)" />
@@ -171,6 +175,7 @@
         </aside>
 
     </div>
+    <div id="toast-message" class="toast" aria-live="polite" role="status"></div>
 </body>
 
 </html>
