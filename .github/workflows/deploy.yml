@@ -1,5 +1,10 @@
 name: Build and Deploy GitHub Pages
 
+# Allow the workflow token to write the built artifacts and update Pages
+permissions:
+  contents: write
+  pages: write
+
 on:
   push:
     branches:
