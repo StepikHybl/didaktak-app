@@ -19,7 +19,9 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        run: npm ci
+        # Use `npm install` in CI to avoid failing when the lockfile and package.json
+        # are out of sync (GitHub Actions runner may use a different npm version).
+        run: npm install
 
       - name: Build production assets
         run: npm run build
