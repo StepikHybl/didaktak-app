@@ -1,6 +1,6 @@
-# 🌸 Eko Akademie — Sakura Cyber-Cozy Edition
+# 🌸 Sakura Study Garden
 
-Interaktivní webová aplikace pro přípravu na didaktické testy z českého a anglického jazyka. Projekt spojuje silnou gamifikaci, estetický Sakura Cyber-Cozy styl a rychlou mobilní optimalizaci.
+Moderní webová aplikace pro přípravu na didaktické testy z českého a anglického jazyka. Projekt kombinuje chytrou gamifikaci, čistý Sakura Cyber-Cozy design a optimalizaci pro plynulé mobilní hraní.
 
 ---
 
@@ -10,11 +10,11 @@ Live demo:
 
 - https://StepikHybl.github.io/didaktak-app
 
-> Pokud používáš Vercel nebo jinou platformu pro nasazení, aktualizuj tento odkaz na svůj oficiální web.
+> Pokud nasazuješ aplikaci na Vercel, Netlify nebo GitHub Pages, aktualizuj tento odkaz podle své cílové adresy.
 
 ## 📥 Klonování projektu
 
-Klonuj repozitář s reálným GitHub účtem:
+Klonuj repozitář z GitHubu:
 
 ```bash
 git clone https://github.com/StepikHybl/didaktak-app.git
@@ -23,22 +23,22 @@ cd didaktak-app
 
 ---
 
-## ✨ Hlavní vlastnosti
+## ✨ Co dělá Sakura Study Garden výjimečnou
 
-- Herní příprava: Testy jsou zpracovány jako interaktivní kvízy s odměnami.
-- Smart opakování: aplikace preferuje otázky, kde uživatel dříve chyboval.
-- Focus Mode: při testu se skrývají rozptylující panely a obsah se centrovaně vyrovná.
-- Optimalizace: navrženo pro 60 FPS a plynulé chování i na mobilu.
+- Interaktivní vzdělávání v herním stylu.
+- Inteligentní opakování otázek podle chybovosti.
+- Focus Mode pro soustředěné testování bez rušivých prvků.
+- Optimalizovaný výkon pro 60 FPS i na mobilních zařízeních.
 
-## 🎮 Gamifikace & meta-hra
+## 🎮 Gamifikace a progres
 
-- Ekonomika lístků: správné odpovědi přidávají herní měnu.
-- Sakura zahrada: nasbírané lístky lze investovat do růstu rostliny.
-- XP systém a denní streak: motivuje pravidelné opakování a zvyšování úrovně.
+- Lístky jako herní měna za správné odpovědi.
+- Rostoucí Sakura: investuj odměny do růstu květiny.
+- XP systém a denní streak pro pravidelný trénink.
 
 ## 🧠 Výukové moduly
 
-Aplikace obsahuje 150+ otázek inspirovaných reálnými didaktickými testy, rozdělených do těchto modulů:
+Více než 150 otázek rozdělených do těchto témat:
 
 - Pravopis
 - Lexikologie
@@ -54,12 +54,12 @@ Aplikace obsahuje 150+ otázek inspirovaných reálnými didaktickými testy, ro
 - HTML5, CSS3 (Custom Properties, Flexbox, Keyframes)
 - JavaScript (ES6 moduly)
 - Vite
-- canvas-confetti pro vizuální efekty
-- Web Storage API (LocalStorage) pro uložení postupu a historie chyb
+- canvas-confetti pro oslavy úspěchů
+- Web Storage API (LocalStorage) pro ukládání postupu a historie chyb
 
 ---
 
-## 🚀 Spuštění místně
+## 🚀 Spuštění lokálně
 
 1. Ujisti se, že máš nainstalovaný Node.js.
 2. Nainstaluj závislosti:
@@ -80,7 +80,7 @@ npm run dev
 http://localhost:5173
 ```
 
-### Testování na mobilu/tabletu
+### Testování na telefonu/tabletu
 
 ```bash
 npm run dev -- --host
@@ -101,8 +101,8 @@ Poté otevři adresu `Network` (např. `http://192.168.1.XX:5173`) ve svém tele
   - `data_cj_syntax.js`
 - `data_en.js` – anglická databáze
 - `index.html` – hlavní stránka
-- `main.js` – core logika a stav
-- `style.css` – Sakura Cyber-Cozy design a animace
+- `main.js` – aplikace a logika
+- `style.css` – Sakura design a animace
 - `package.json` – konfigurace projektu
 - `README.md` – dokumentace
 
@@ -111,3 +111,4 @@ Poté otevři adresu `Network` (např. `http://192.168.1.XX:5173`) ve svém tele
 ## 📜 Licence
 
 Tento projekt je open-source a je šířen pod licencí MIT.
+
