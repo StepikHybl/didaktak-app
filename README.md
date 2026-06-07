@@ -13,8 +13,6 @@ Live demo:
 
 - https://StepikHybl.github.io/didaktak-app
 
-> Pokud nasazuješ aplikaci na Vercel, Netlify nebo GitHub Pages, aktualizuj tento odkaz podle své cílové adresy.
-
 ## 📥 Klonování projektu
 
 Klonuj repozitář z GitHubu:
