@@ -1,5 +1,4 @@
-import './style.css';
-import confetti from 'canvas-confetti';
+import confetti from 'https://unpkg.com/canvas-confetti?module';
 
 // --- IMPORTY Z NOVÉ DECENTRÁLNÍ SLOŽKY data_cj ---
 import { quizDataCJPravopis } from './data_cj/data_cj_pravopis.js';
